@@ -26,3 +26,28 @@ jobs:
     - name : build gradle
       run : ./gradlew -x clean build
       shell : bash
+
+    - name: Get current time
+      uses: 1466587594/get-current-time@v2
+      id: current-time
+      with:
+        format: YYYY-MM-DDTHH-mm-ss
+        utcOffset: "+09:00"
+    - name  : make deploy package
+      run : |
+        mkdir -p deploy
+        cp build/libs/*.jar deploy/application.jar
+        cp Procfile deploy/Procfile
+        cp -r .ebextensions deploy/*.ebextensions
+        cp deploy && zip -r deploy.zip
+
+    - name: deploy to beanstalk
+      uses: einaregilsson/beanstalk-delply@v22
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+        applications_name : ProgrammersBE
+        environment_name : ProgrammersBE-env
+        version_label : github-action-${{ steps.current-time}}
+        region: ap-northeast-2
+        deployment_package : deploy/deploy.zip
