@@ -39,7 +39,7 @@ jobs:
         cp build/libs/*.jar deploy/application.jar
         cp Procfile deploy/Procfile
         cp -r .ebextensions deploy/*.ebextensions
-        cp deploy && zip -r deploy.zip
+        cp deploy && zip -r deploy.zip .
 
     - name: deploy to beanstalk
       uses: einaregilsson/beanstalk-delply@v22
